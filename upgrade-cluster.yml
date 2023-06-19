@@ -1,0 +1,61 @@
+---
+- name: Set up cluster-wide configuration.
+  hosts: cluster
+  gather_facts: false
+  become: true
+
+  vars_files:
+    - config.yml
+
+  tasks:
+    - name: Download K3s install script.
+      ansible.builtin.get_url:
+        url: https://get.k3s.io
+        dest: "~/k3s_install.sh"
+        mode: a+x     
+        force: yes 
+
+
+- name: Upgrade the control plane.
+  hosts: control_plane
+  gather_facts: false
+  become: true
+
+  vars_files:
+    - config.yml
+
+  tasks:
+    - name: Install K3s on control plane (takes a while).
+      ansible.builtin.shell: >-
+        INSTALL_K3S_VERSION="{{ kubernetes_cluster_version }}"
+        ~/k3s_install.sh >> ~/k3s_install_log.txt
+      args:
+        chdir: "~"
+        creates: /var/lib/rancher/k3s/server/node-token
+
+    - name: Get node token.
+      ansible.builtin.command: cat /var/lib/rancher/k3s/server/node-token
+      changed_when: false
+      register: node_token_output
+
+    - name: Set node_token fact.
+      ansible.builtin.set_fact:
+        node_token: "{{ node_token_output.stdout_lines[0] }}"
+
+
+- name: Upgrade the Worker Nodes
+  hosts: nodes
+  gather_facts: false
+  serial: 1
+  become: true
+
+  vars_files:
+    - config.yml
+
+  tasks:
+    - name: Install K3s on nodes (takes a while).
+      ansible.builtin.shell: >-
+        INSTALL_K3S_VERSION="{{ kubernetes_cluster_version }}"
+        K3S_URL="https://{{ groups['control_plane'][0] }}:6443"
+        K3S_TOKEN="{{ hostvars[groups['control_plane'][0]]['node_token'] }}"
+        ~/k3s_install.sh >> ~/k3s_install_log.txt

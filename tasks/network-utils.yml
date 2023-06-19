@@ -1,0 +1,10 @@
+---
+- name: Install network utilities on the cluster.
+  hosts: cluster
+  become: true
+
+  tasks:
+    - name: Install iperf3 (state=present is optional)
+      ansible.builtin.apt:
+        name: iperf3
+        state: present
