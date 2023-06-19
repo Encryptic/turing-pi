@@ -27,11 +27,11 @@
   tasks:
     - name: Install K3s on control plane (takes a while).
       ansible.builtin.shell: >-
+        INSTALL_K3S_EXEC="--disable traefik"
         INSTALL_K3S_VERSION="{{ kubernetes_cluster_version }}"
         ~/k3s_install.sh >> ~/k3s_install_log.txt
       args:
         chdir: "~"
-        creates: /var/lib/rancher/k3s/server/node-token
 
     - name: Get node token.
       ansible.builtin.command: cat /var/lib/rancher/k3s/server/node-token
@@ -55,6 +55,7 @@
   tasks:
     - name: Install K3s on nodes (takes a while).
       ansible.builtin.shell: >-
+        INSTALL_K3S_EXEC="--disable traefik"
         INSTALL_K3S_VERSION="{{ kubernetes_cluster_version }}"
         K3S_URL="https://{{ groups['control_plane'][0] }}:6443"
         K3S_TOKEN="{{ hostvars[groups['control_plane'][0]]['node_token'] }}"
