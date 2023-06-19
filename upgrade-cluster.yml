@@ -55,7 +55,6 @@
   tasks:
     - name: Install K3s on nodes (takes a while).
       ansible.builtin.shell: >-
-        INSTALL_K3S_EXEC="--disable traefik"
         INSTALL_K3S_VERSION="{{ kubernetes_cluster_version }}"
         K3S_URL="https://{{ groups['control_plane'][0] }}:6443"
         K3S_TOKEN="{{ hostvars[groups['control_plane'][0]]['node_token'] }}"
