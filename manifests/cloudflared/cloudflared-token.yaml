@@ -2,5 +2,6 @@ apiVersion: onepassword.com/v1
 kind: OnePasswordItem
 metadata:
   name: cloudflared
+  namespace: default
 spec:
   itemPath: "vaults/homelab/items/cloudflared"
