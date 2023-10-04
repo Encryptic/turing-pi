@@ -27,20 +27,12 @@
   tasks:
     - name: Install K3s on control plane (takes a while).
       ansible.builtin.shell: >-
-        INSTALL_K3S_EXEC="--disable traefik"
+        K3S_TOKEN="{{ lookup('community.general.onepassword', 'pi-cluster-k3s-token', field='credential', vault='Homelab') }}"
+        INSTALL_K3S_EXEC="--disable traefik --datastore-endpoint="mysql://{{ lookup('community.general.onepassword', 'pi-cluster-k3s-datastore', field='username', vault='Homelab') }}:{{ lookup('community.general.onepassword', 'pi-cluster-k3s-datastore', field='credential', vault='Homelab') }}@tcp\(nas-1.home.theberge.org:3307\)/k3s""
         INSTALL_K3S_VERSION="{{ kubernetes_cluster_version }}"
         ~/k3s_install.sh >> ~/k3s_install_log.txt
       args:
         chdir: "~"
-
-    - name: Get node token.
-      ansible.builtin.command: cat /var/lib/rancher/k3s/server/node-token
-      changed_when: false
-      register: node_token_output
-
-    - name: Set node_token fact.
-      ansible.builtin.set_fact:
-        node_token: "{{ node_token_output.stdout_lines[0] }}"
 
 
 - name: Upgrade the Worker Nodes
@@ -57,5 +49,5 @@
       ansible.builtin.shell: >-
         INSTALL_K3S_VERSION="{{ kubernetes_cluster_version }}"
         K3S_URL="https://{{ groups['control_plane'][0] }}:6443"
-        K3S_TOKEN="{{ hostvars[groups['control_plane'][0]]['node_token'] }}"
+        K3S_TOKEN="{{ lookup('community.general.onepassword', 'pi-cluster-k3s-token', field='credential', vault='Homelab') }}"
         ~/k3s_install.sh >> ~/k3s_install_log.txt

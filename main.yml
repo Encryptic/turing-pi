@@ -40,19 +40,15 @@
   tasks:
     - name: Install K3s on control plane (takes a while).
       ansible.builtin.shell: >-
+        K3S_TOKEN="{{ lookup('community.general.onepassword', 'pi-cluster-k3s-token', field='credential', vault='Homelab') }}"
         ~/k3s_install.sh >> ~/k3s_install_log.txt
       args:
         chdir: "~"
         creates: /var/lib/rancher/k3s/server/node-token
 
-    - name: Get node token.
-      ansible.builtin.command: cat /var/lib/rancher/k3s/server/node-token
-      changed_when: false
-      register: node_token_output
-
     - name: Set node_token fact.
       ansible.builtin.set_fact:
-        node_token: "{{ node_token_output.stdout_lines[0] }}"
+        node_token: "{{ lookup('community.general.onepassword', 'pi-cluster-k3s-token', field='credential', vault='Homelab') }}"
 
     - name: Ensure required dependencies are installed.
       ansible.builtin.package:
@@ -86,7 +82,7 @@
     - name: Install K3s on nodes (takes a while).
       ansible.builtin.shell: >-
         K3S_URL="https://{{ groups['control_plane'][0] }}:6443"
-        K3S_TOKEN="{{ hostvars[groups['control_plane'][0]]['node_token'] }}"
+        K3S_TOKEN="{{ lookup('community.general.onepassword', 'pi-cluster-k3s-token', field='credential', vault='Homelab') }}"
         ~/k3s_install.sh >> ~/k3s_install_log.txt
       args:
         chdir: "~"
