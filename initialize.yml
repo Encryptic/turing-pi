@@ -48,11 +48,3 @@
           - git
         state: present
       become: true
-
-    - name: Ensure required Python libraries are installed.
-      ansible.builtin.pip:
-        name:
-          - openshift
-          - pyyaml
-        state: present
-      become: true

@@ -1,6 +1,6 @@
 ---
 - name: Set up static networking configuration for the load balancers.
-  hosts: lb
+  hosts: all_components
   gather_facts: false
   become: true
 
