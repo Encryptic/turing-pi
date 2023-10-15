@@ -1,0 +1,14 @@
+frontend k3s-frontend
+    bind *:6443
+    mode tcp
+    option tcplog
+    default_backend k3s-backend
+
+backend k3s-backend
+    mode tcp
+    option tcp-check
+    balance roundrobin
+    default-server inter 10s downinter 5s
+{% for host in groups['control_plane'] %}
+    server {{ hostvars[host]['inventory_hostname_short'] }} {{ ipv4_subnet_prefix }}.{{ hostvars[host]['ip_host_octet'] }}:6443 check
+{% endfor %}
