@@ -38,18 +38,6 @@
     - config.yml
 
   tasks:
-    # - name: Install K3s on control plane (takes a while).
-    #   ansible.builtin.shell: >-
-    #     K3S_TOKEN="{{ lookup('community.general.onepassword', 'pi-cluster-k3s-token', field='credential', vault='Homelab') }}"
-    #     ~/k3s_install.sh >> ~/k3s_install_log.txt
-    #   args:
-    #     chdir: "~"
-    #     creates: /var/lib/rancher/k3s/server/node-token
-
-    # - name: Set node_token fact.
-    #   ansible.builtin.set_fact:
-    #     node_token: "{{ lookup('community.general.onepassword', 'pi-cluster-k3s-token', field='credential', vault='Homelab') }}"
-
     - name: Ensure required dependencies are installed.
       ansible.builtin.package:
         name:
@@ -68,22 +56,3 @@
           - pyyaml
         state: present
       become: true
-
-
-# - name: Configure the worker nodes.
-#   hosts: nodes
-#   gather_facts: false
-#   become: true
-
-#   vars_files:
-#     - config.yml
-
-#   tasks:
-#     - name: Install K3s on nodes (takes a while).
-#       ansible.builtin.shell: >-
-#         K3S_URL="{{ control_plane_api_url }}"
-#         K3S_TOKEN="{{ lookup('community.general.onepassword', 'pi-cluster-k3s-token', field='credential', vault='Homelab') }}"
-#         ~/k3s_install.sh >> ~/k3s_install_log.txt
-#       args:
-#         chdir: "~"
-#         creates: /var/lib/rancher/k3s/agent/kubelet.kubeconfig
