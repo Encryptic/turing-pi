@@ -1,0 +1,21 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: csi-driver-nfs
+  namespace: argocd
+spec:
+  destination:
+    namespace: kube-system
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    chart: csi-driver-nfs
+    helm:
+      values: |-
+        controller:
+          runOnControlPlane: true
+    repoURL: https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/charts
+    targetRevision: v4.6.0
+  syncPolicy:
+    syncOptions:
+    - ServerSideApply=true
