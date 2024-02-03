@@ -8,9 +8,18 @@ spec:
     namespace: kube-system
     server: https://kubernetes.default.svc
   project: default
+  ignoreDifferences:
+  - group: storage.k8s.io
+    jsonPointers:
+    - /spec/seLinuxMount
+    kind: CSIDriver
+    name: nfs.csi.k8s.io
   source:
     chart: csi-driver-nfs
-    helm: {}
+    helm:
+      parameters:
+        - name: externalSnapshotter.enabled
+          value: 'false'
     repoURL: https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/charts
     targetRevision: v4.6.0
   syncPolicy:
