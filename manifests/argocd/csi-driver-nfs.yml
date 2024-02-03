@@ -19,7 +19,7 @@ spec:
     helm:
       parameters:
         - name: externalSnapshotter.enabled
-          value: 'false'
+          value: 'true'
     repoURL: https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/charts
     targetRevision: v4.6.0
   syncPolicy:
