@@ -13,6 +13,12 @@ spec:
         valuesObject:
           preUpgradeChecker:
             jobEnabled: false
+          longhornManager:
+            nodeSelector:
+              label-storage: "label-nvme"
+          longhornDriver:
+            nodeSelector:
+              label-storage: "label-nvme"
   destination:
     server: https://kubernetes.default.svc
     namespace: longhorn-system
