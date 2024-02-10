@@ -14,7 +14,7 @@
   tasks:
     - name: Ensure cgroups are configured correctly in cmdline.txt.
       ansible.builtin.replace:
-        path: /boot/cmdline.txt
+        path: /boot/firmware/cmdline.txt
         regexp: '^([\w](?!.*\b{{ item }}\b).*)$'
         replace: '\1 {{ item }}'
       with_items:
@@ -81,4 +81,4 @@
         INSTALL_K3S_VERSION="{{ kubernetes_cluster_version }}"
         K3S_URL="{{ control_plane_api_url }}"
         K3S_TOKEN="{{ lookup('community.general.onepassword', 'pi-cluster-k3s-token', field='credential', vault='Homelab') }}"
-        ~/k3s_install.sh >> ~/k3s_install_log.txt
+        ~/k3s_install.sh --node-label storage={{ storage_type | default("none") }} >> ~/k3s_install_log.txt
