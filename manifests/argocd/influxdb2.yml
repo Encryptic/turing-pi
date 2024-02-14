@@ -11,11 +11,12 @@ spec:
   source:
     chart: influxdb2
     helm:
-      values: |-
+      valuesObject:
+        nodeSelector:
+          storage: "nvme"
         env:
           - name: INFLUXDB_DATA_WAL_FSYNC_DELAY
             value: 100ms
-
         resources:
           limits:
             cpu: 1
@@ -23,7 +24,6 @@ spec:
           requests:
             cpu: 500m
             memory: 512Mi
-
         ## Create default user through docker entrypoint
         adminUser:
           organization: "influxdata"
@@ -32,21 +32,17 @@ spec:
           retention_policy: "0s"
           password: ""
           token: ""
-
         ## Persist data to a persistent volume
         persistence:
           enabled: true
-          storageClass: "smb-csi"
           accessMode: ReadWriteOnce
           size: 50Gi
           mountPath: /var/lib/influxdb2
           subPath: ""
-
         ## Pod disruption budget configuration
         pdb:
           ## Specifies whether a Pod disruption budget should be created
           create: true
           minAvailable: 1
-
     repoURL: https://helm.influxdata.com/
     targetRevision: 2.1.2
