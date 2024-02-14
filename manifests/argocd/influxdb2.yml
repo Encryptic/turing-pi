@@ -14,9 +14,6 @@ spec:
       valuesObject:
         nodeSelector:
           storage: "nvme"
-        env:
-          - name: INFLUXDB_DATA_WAL_FSYNC_DELAY
-            value: 100ms
         resources:
           limits:
             cpu: 1
