@@ -2,4 +2,4 @@
 ipv4_subnet_prefix: "192.168.11"
 control_plane_vip: 192.168.11.100
 control_plane_api_url: https://192.168.11.100:6443
-kubernetes_cluster_version: v1.29.2+k3s1
+kubernetes_cluster_version: v1.29.3+k3s1
