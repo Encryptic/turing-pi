@@ -1,6 +1,6 @@
 ---
 - name: Set up cluster-wide configuration.
-  hosts: cluster
+  hosts: raspberry_pis
   gather_facts: false
   become: true
 
@@ -22,6 +22,19 @@
         - "cgroup_enable=memory"
       notify: reboot-pi
 
+- name: Download components required on all nodes
+  hosts: all_components
+  gather_facts: false
+  become: true
+
+  handlers:
+    - name: reboot-pi
+      ansible.builtin.reboot:
+
+  vars_files:
+    - config.yml
+
+  tasks:
     - name: Download K3s install script.
       ansible.builtin.get_url:
         url: https://get.k3s.io
@@ -62,7 +75,7 @@
         K3S_TOKEN="{{ lookup('community.general.onepassword', 'pi-cluster-k3s-token', field='credential', vault='Homelab') }}"
         INSTALL_K3S_EXEC="--disable traefik,local-storage --tls-san {{ control_plane_vip }} --datastore-endpoint="mysql://{{ lookup('community.general.onepassword', 'pi-cluster-k3s-datastore', field='username', vault='Homelab') }}:{{ lookup('community.general.onepassword', 'pi-cluster-k3s-datastore', field='credential', vault='Homelab') }}@tcp\(nas-1.home.theberge.org:3307\)/k3s""
         INSTALL_K3S_VERSION="{{ kubernetes_cluster_version }}"
-        ~/k3s_install.sh >> ~/k3s_install_log.txt
+        ~/k3s_install.sh --node-label storage={{ storage_type | default("none") }} >> ~/k3s_install_log.txt
       args:
         chdir: "~"
 

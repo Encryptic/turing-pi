@@ -1,0 +1,56 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: mimir
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/compare-options: ServerSideDiff=true
+spec:
+  project: default
+  source:
+    repoURL: 'https://grafana.github.io/helm-charts'
+    targetRevision: 5.4.0-weekly.288
+    helm:
+      valuesObject:
+        minio:
+          nodeSelector:
+            storage: nvme
+        alertmanager:
+          nodeSelector:
+            storage: nvme
+        compactor:
+          nodeSelector:
+            storage: nvme
+        ingester:
+          zoneAwareReplication:
+            zones:
+              - name: zone-a
+                nodeSelector:
+                  storage: nvme
+              - name: zone-b
+                nodeSelector:
+                  storage: nvme
+              - name: zone-c
+                nodeSelector:
+                  storage: nvme
+        store_gateway:
+          zoneAwareReplication:
+            zones:
+              - name: zone-a
+                nodeSelector:
+                  storage: nvme
+              - name: zone-b
+                nodeSelector:
+                  storage: nvme
+              - name: zone-c
+                nodeSelector:
+                  storage: nvme            
+    chart: mimir-distributed
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: mimir
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+      - ApplyOutOfSyncOnly=true
+      - ServerSideApply=true

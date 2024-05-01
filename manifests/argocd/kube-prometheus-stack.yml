@@ -4,21 +4,24 @@ metadata:
   name: kube-prometheus-stack
   namespace: argocd
 spec:
-  destination:
-    namespace: monitoring
-    server: https://kubernetes.default.svc
   project: default
   source:
-    chart: kube-prometheus-stack
+    repoURL: 'https://prometheus-community.github.io/helm-charts'
+    targetRevision: 58.3.1
     helm:
-      values: |-
+      valuesObject:
         grafana:
           admin:
             existingSecret: grafana-secret
-    repoURL: https://prometheus-community.github.io/helm-charts
-    targetRevision: 51.2.0
+          persistence:
+            type: pvc
+            enabled: true
+    chart: kube-prometheus-stack
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: monitoring
   syncPolicy:
     syncOptions:
-    - CreateNamespace=true
-    - ApplyOutOfSyncOnly=true
-    - ServerSideApply=true
+      - CreateNamespace=true
+      - ApplyOutOfSyncOnly=true
+      - ServerSideApply=true

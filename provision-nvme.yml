@@ -23,3 +23,12 @@
       ansible.builtin.apt:
         name: open-iscsi
         state: present
+
+- name: Add disk to Longhorn nodes
+  hosts: rk1_nodes_control_nodes
+  become: true
+  tasks:
+    - name: Install open-iscsi
+      ansible.builtin.apt:
+        name: open-iscsi
+        state: present
