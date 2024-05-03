@@ -3,6 +3,8 @@ kind: Application
 metadata:
   name: mimir
   namespace: argocd
+  annotations:
+    argocd.argoproj.io/compare-options: ServerSideDiff=true
 spec:
   project: default
   source:
@@ -35,8 +37,6 @@ spec:
           nodeSelector:
             storage: nvme
         ingester:
-          persistentVolume:
-            size: 25Gi
           zoneAwareReplication:
             zones:
               - name: zone-a
