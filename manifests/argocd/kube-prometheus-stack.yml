@@ -12,6 +12,21 @@ spec:
       values: |-
         prometheus:
           prometheusSpec:
+            nodeSelector:
+              storage: nvme
+            scrapeInterval: "1m"
+            evaluationInterval: "1m"
+            storageSpec:
+              volumeClaimTemplate:
+                spec:
+                  accessModes: ["ReadWriteOnce"]
+                  resources:
+                    requests:
+                      storage: 50Gi
+            additionalScrapeConfigs:
+              - job_name: 'node-exporter'
+                static_configs:
+                  - targets: ['nas-1.home.theberge.org:9100', 'elend.theberge.org:9100']
             remoteWrite:
             - url: "http://mimir-nginx.mimir.svc:80/api/v1/push"
               writeRelabelConfigs:
