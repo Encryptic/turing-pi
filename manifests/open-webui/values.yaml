@@ -1,0 +1,14 @@
+#
+nodeSelector:
+  storage: "nvme"
+
+extraEnvVars:
+  - name: OLLAMA_BASE_URL
+    value: "http://192.168.4.7:11434"
+
+pipelines:
+  nodeSelector:
+    storage: "nvme"
+
+ollama:
+  enabled: false
