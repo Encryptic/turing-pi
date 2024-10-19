@@ -22,15 +22,42 @@
         - "cgroup_enable=memory"
       notify: reboot-pi
 
+# - name: Configure the control plane.
+#   hosts: control_plane
+#   gather_facts: false
+#   become: true
+
+#   vars_files:
+#     - config.yml
+
+#   tasks:
+#     - name: Ensure required dependencies are installed.
+#       ansible.builtin.package:
+#         name:
+#           - python3-pip
+#           - python3-setuptools
+#           - build-essential
+#           - golang
+#           - git
+#         state: present
+#       become: true
+
+- name: Install required longhorn components
+  hosts: all_components
+  become: true
+  tasks:
+    - name: Install open-iscsi
+      ansible.builtin.apt:
+        name: open-iscsi
+        state: present
+
 - name: Download components required on all nodes
   hosts: all_components
   gather_facts: false
   become: true
-
   handlers:
     - name: reboot-pi
       ansible.builtin.reboot:
-
   vars_files:
     - config.yml
 
@@ -40,26 +67,6 @@
         url: https://get.k3s.io
         dest: "~/k3s_install.sh"
         mode: a+x
-
-- name: Configure the control plane.
-  hosts: control_plane
-  gather_facts: false
-  become: true
-
-  vars_files:
-    - config.yml
-
-  tasks:
-    - name: Ensure required dependencies are installed.
-      ansible.builtin.package:
-        name:
-          - python3-pip
-          - python3-setuptools
-          - build-essential
-          - golang
-          - git
-        state: present
-      become: true
 
 - name: Upgrade the control plane.
   hosts: control_plane
@@ -73,7 +80,8 @@
     - name: Install K3s on control plane (takes a while).
       ansible.builtin.shell: >-
         K3S_TOKEN="{{ lookup('community.general.onepassword', 'pi-cluster-k3s-token', field='credential', vault='Homelab') }}"
-        INSTALL_K3S_EXEC="--disable traefik,local-storage --tls-san {{ control_plane_vip }} --datastore-endpoint="mysql://{{ lookup('community.general.onepassword', 'pi-cluster-k3s-datastore', field='username', vault='Homelab') }}:{{ lookup('community.general.onepassword', 'pi-cluster-k3s-datastore', field='credential', vault='Homelab') }}@tcp\(nas-1.home.theberge.org:3307\)/k3s""
+        K3S_URL="{{ control_plane_api_url }}"
+        INSTALL_K3S_EXEC="server --server {{ control_plane_api_url }} --disable traefik,local-storage --tls-san {{ control_plane_vip }} --token {{ lookup('community.general.onepassword', 'pi-cluster-k3s-token', field='credential', vault='Homelab') }}"
         INSTALL_K3S_VERSION="{{ kubernetes_cluster_version }}"
         ~/k3s_install.sh --node-label storage={{ storage_type | default("none") }} >> ~/k3s_install_log.txt
       args:

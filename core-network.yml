@@ -1,4 +1,14 @@
 ---
+- name: Install Network Manager
+  hosts: all_components
+  become: true
+  tasks:
+    - name: Install network-manager
+      ansible.builtin.apt:
+        name: network-manager
+        state: present
+
+
 - name: Set up static networking configuration for the load balancers.
   hosts: all_components
   gather_facts: false
