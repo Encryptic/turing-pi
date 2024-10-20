@@ -8,10 +8,16 @@ spec:
     namespace: naglebot
     server: https://kubernetes.default.svc
   project: default
-  source:
-    path: helm
-    repoURL: git@github.com:Encryptic/naglebot.git
-    targetRevision: main
+  sources:
+    - path: helm
+      repoURL: git@github.com:Encryptic/naglebot.git
+      targetRevision: main
+    - repoURL: 'registry-1.docker.io/bitnamicharts'
+      path: 'valkey-cluster'
+      targetRevision: 1.0.2
+      chart: 'valkey-cluster'
+      helm: {}
+
   syncPolicy:
     syncOptions:
     - CreateNamespace=true
